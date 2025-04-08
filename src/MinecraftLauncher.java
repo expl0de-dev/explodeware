@@ -10,7 +10,6 @@ import java.awt.Desktop;
 import java.net.URI;
 
 public class MinecraftLauncher extends Application {
-    // Перемещаем переменную шрифта на уровень класса
     private Font minecraftFont;
 
     @Override
@@ -18,10 +17,17 @@ public class MinecraftLauncher extends Application {
         Pane root = new Pane();
         root.setPrefSize(600, 400);
 
-        // Установка градиентного фона через CSS
-        root.setStyle("-fx-background-color: linear-gradient(to right, red, black);");
+        // Линейный градиент по диагонали с уменьшенной на 10% долей черного
+        root.setStyle(
+                "-fx-background-color: linear-gradient(" +
+                        "from 0% 0% to 100% 100%, " + // Направление от левого верхнего угла к правому нижнему
+                        "black 0%, " +  // Начало - черный
+                        "black 50%, " + // Черный доминирует до 50% (60% - 10%)
+                        "red 100%); " + // Конец - красный
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 4, 0, 4, 4);" // Пиксельная тень для фона
+        );
 
-        // Инициализация шрифта один раз
+        // Инициализация шрифта
         try {
             minecraftFont = Font.loadFont(getClass().getResourceAsStream("/minecraft.ttf"), 36);
             if (minecraftFont == null) {
@@ -31,32 +37,43 @@ public class MinecraftLauncher extends Application {
             minecraftFont = Font.font("Arial", 36);
         }
 
-        // Заголовок
+        // Заголовок с усиленным пиксельным эффектом
         Label title = new Label("Expl0de");
         title.setFont(minecraftFont);
         title.setTextFill(Color.WHITE);
-        title.setLayoutX(230); // Более точное центрирование
+        title.setStyle(
+                "-fx-effect: dropshadow(gaussian, black, 4, 0.0, 4, 4);" +
+                        "-fx-padding: 2;"
+        );
+        title.setLayoutX(230);
         title.setLayoutY(80);
         root.getChildren().add(title);
 
-        // Кнопка "Играть"
+        // Кнопка "Играть" с усиленным пиксельным стилем
         Button playButton = new Button("Играть");
-        playButton.setFont(Font.font(minecraftFont.getFamily(), 16));
+        playButton.setFont(Font.font(minecraftFont.getFamily(), 24));
         playButton.setStyle(
                 "-fx-background-color: #4CAF50; " +
                         "-fx-text-fill: white; " +
-                        "-fx-padding: 10 20 10 20;"
+                        "-fx-padding: 15 30 15 30; " +
+                        "-fx-border-color: #3D8C40; " +
+                        "-fx-border-width: 4; " +
+                        "-fx-effect: dropshadow(gaussian, black, 4, 0.0, 4, 4);"
         );
-        playButton.setLayoutX(275); // Центрирование
-        playButton.setLayoutY(180);
+        playButton.setPrefSize(150, 60);
+        playButton.setLayoutX(225);
+        playButton.setLayoutY(200);
         playButton.setOnAction(e -> launchGame());
         root.getChildren().add(playButton);
 
-        // Копирайт
+        // Копирайт с пиксельным стилем
         Label copyright = new Label("All copyrights reserved ⓒ");
         copyright.setFont(Font.font(minecraftFont.getFamily(), 10));
         copyright.setTextFill(Color.WHITE);
-        copyright.setLayoutX(230);
+        copyright.setStyle(
+                "-fx-effect: dropshadow(gaussian, black, 2, 0.0, 2, 2);"
+        );
+        copyright.setLayoutX((600 - 150) / 2 + 10); // Центрирование с небольшим смещением вправо
         copyright.setLayoutY(340);
         root.getChildren().add(copyright);
 
@@ -69,7 +86,6 @@ public class MinecraftLauncher extends Application {
 
     private void launchGame() {
         try {
-            // Открытие авторизации Microsoft
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(new URI(
                         "https://login.live.com/oauth20_authorize.srf?" +
@@ -80,8 +96,6 @@ public class MinecraftLauncher extends Application {
                 ));
             }
 
-            // Примечание: Реальный запуск Minecraft требует установленного официального лаунчера
-            // и корректных путей к файлам
             ProcessBuilder pb = new ProcessBuilder(
                     "java",
                     "-jar",
@@ -89,11 +103,10 @@ public class MinecraftLauncher extends Application {
                     "--version",
                     "1.21"
             );
-            pb.inheritIO(); // Для отображения вывода
+            pb.inheritIO();
             pb.start();
 
         } catch (Exception e) {
-            // Добавим базовую обработку ошибок
             System.err.println("Ошибка при запуске игры: " + e.getMessage());
             e.printStackTrace();
         }
